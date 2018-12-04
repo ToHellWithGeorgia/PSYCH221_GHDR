@@ -4,9 +4,9 @@ function out = YUV2RGB(in)
  U = in(:,:,2);
  V = in(:,:,3);
  
- R = Y + 1.14 * V;
- G = Y - 0.395 * U - 0.581 * V;
- B = Y + 2.033 * U;
+ R = min(Y + 1.14 * V, 1);
+ G = min(Y - 0.395 * U - 0.581 * V, 1);
+ B = min(Y + 2.033 * U, 1);
  
  out = cat(3,R,G,B);
 end
