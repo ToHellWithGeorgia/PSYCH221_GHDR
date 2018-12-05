@@ -5,11 +5,14 @@ load('scenes/taxi_burst_raw.mat');
 load('scenes/taxi_merged_raw.mat');
 
 M1 = 0.4;
-M2 = 10.0;
+M2 = 6.0;
 gamma = 0.44;
 rgb_align = 'grbg';
+% input_img = taxi_merged_raw;
+input_img = result3;
+
 % Detect and correct sensing defect
-% correct_out = correctDefect(taxi_merged_raw, M1, M2);
+correct_out = correctDefect(input_img, M1, M2);
 % figure; imshow(uint8(correct_out.^gamma*255));
 
 % Demosaic
@@ -30,8 +33,8 @@ rgb_dark = gauss_out;
 rgb_brig = brighten(gauss_out, 1.3);
 gray_dark = RGB2YUV(rgb_dark); gray_dark = gray_dark(:,:,1);
 gray_brig = RGB2YUV(rgb_brig); gray_brig = gray_brig(:,:,1);
-figure; imshow(rgb_dark);
-figure; imshow(rgb_brig);
+% figure; imshow(rgb_dark);
+% figure; imshow(rgb_brig);
 
 % Calculate the weight map for fusing
 wm_brig = weightMap(gray_brig, rgb_brig);
