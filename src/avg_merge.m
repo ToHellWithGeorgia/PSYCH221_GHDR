@@ -21,4 +21,5 @@ function result = avg_merge(raw_frame, align_offsets, tile, stride)
             end
         end
     end
+    result = result/max(max(result));
 end

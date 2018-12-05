@@ -49,4 +49,6 @@ function result = robust_merge(raw_frame, align_offsets, tile, stride)
     result(1:tile/2*2,:) = raw_frame{1}(1:tile/2*2, :);
     result(floor((height/2 - tile) / stride) * stride * 2:end,:) = ...
         raw_frame{1}(floor((height/2 - tile) / stride) * stride * 2:end,:);
+    
+    result = result/max(max(result));
 end
