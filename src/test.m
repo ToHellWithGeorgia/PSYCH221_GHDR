@@ -5,11 +5,14 @@ load('scenes/taxi_burst_raw.mat');
 load('scenes/taxi_merged_raw.mat');
 
 M1 = 0.4;
-M2 = 10.0;
+M2 = 6.0;
 gamma = 0.44;
 rgb_align = 'grbg';
+% input_img = taxi_merged_raw;
+input_img = result3;
+
 % Detect and correct sensing defect
-% correct_out = correctDefect(taxi_merged_raw, M1, M2);
+correct_out = correctDefect(input_img, M1, M2);
 % figure; imshow(uint8(correct_out.^gamma*255));
 
 % Demosaic
