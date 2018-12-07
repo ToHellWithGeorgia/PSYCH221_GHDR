@@ -11,15 +11,10 @@ function result = robust_merge(raw_frame, align_offsets, tile, stride)
     result = zeros(height, width);
     
     noise_variance = std2(raw_frame{1})^2;
-    
-    cos_1d = zeros(1,16);
-    for x = 1:16
-        cos_1d(x) = 1/2 - 1/2*cos(2*pi*(x+1/2)/16);
-    end
-    cos_2d = cos_1d' * cos_1d;
 
     for cr = 1:2  % color channel row
         for cc = 1:2
+            overlap_count = zeros(height/2, width/2);
             channel = zeros(height/2, width/2);
             for k = 1:length(raw_frame)
                 for row = 1:stride:height/2-tile
@@ -36,19 +31,66 @@ function result = robust_merge(raw_frame, align_offsets, tile, stride)
 
                         channel(row:row+tile-1, col:col+tile-1) = ...
                             channel(row:row+tile-1, col:col+tile-1) ...
-                            + abs(ifft2(Tz + Az.*(T0 - Tz))).*cos_2d;
+                            + abs(ifft2(Tz + Az.*(T0 - Tz)));
+                        overlap_count(row:row+tile-1, col:col+tile-1) = ...
+                            overlap_count(row:row+tile-1, col:col+tile-1) + ...
+                            ones(tile);
                     end
                 end
+                
+                % Bottom edge
+                row = floor((height/2-tile)/stride)*stride;
+                for col = 1:floor((width/2-tile)/stride)*stride-tile
+                    current_tile = raw_frame{1}(row*2-1+cr-1:2:end, col*2-1+cc-1:2:col*2-1+cc-1+tile*2-1);
+                    comming_tile = raw_frame{k}(row*2-1+cr-1:2:end, col*2-1+cc-1:2:col*2-1+cc-1+tile*2-1);
+
+                    T0 = fft2(current_tile);
+                    Tz = fft2(comming_tile);
+                    Dz = abs(T0 - Tz);
+                    Az = Dz.^2 ./ (Dz.^2 + 8 * noise_variance);
+
+                    channel(row:end, col:col+tile-1) = ...
+                        channel(row:end, col:col+tile-1) + abs(ifft2(Tz + Az.*(T0 - Tz)));
+                    overlap_count(row:end, col:col+tile-1) = ...
+                        overlap_count(row:end, col:col+tile-1) + ones(size(overlap_count(row:end, col:col+tile-1)));
+                end
+                
+                % Right edge
+                col = floor((width/2-tile)/stride)*stride;
+                for row = 1:floor((height/2-tile)/stride)*stride-tile
+                    current_tile = raw_frame{1}(row*2-1+cr-1:2:row*2-1+cr-1+tile*2-1, col*2-1+cc-1:2:end);
+                    comming_tile = raw_frame{k}(row*2-1+cr-1:2:row*2-1+cr-1+tile*2-1, col*2-1+cc-1:2:end);
+
+                    T0 = fft2(current_tile);
+                    Tz = fft2(comming_tile);
+                    Dz = abs(T0 - Tz);
+                    Az = Dz.^2 ./ (Dz.^2 + 8 * noise_variance);
+
+                    channel(row:row+tile-1, col:end) = ...
+                        channel(row:row+tile-1, col:end) + abs(ifft2(Tz + Az.*(T0 - Tz)));
+                    overlap_count(row:row+tile-1, col:end) = ...
+                        overlap_count(row:row+tile-1, col:end) + ones(size(overlap_count(row:row+tile-1, col:end)));
+                end
+                
+                % Bottom-right corner
+                row = floor((height/2-tile)/stride)*stride;
+                col = floor((width/2-tile)/stride)*stride;
+                current_tile = raw_frame{1}(row*2-1+cr-1:2:end, col*2-1+cc-1:2:end);
+                comming_tile = raw_frame{k}(row*2-1+cr-1:2:end, col*2-1+cc-1:2:end);
+                
+                T0 = fft2(current_tile);
+                Tz = fft2(comming_tile);
+                Dz = abs(T0 - Tz);
+                Az = Dz.^2 ./ (Dz.^2 + 8 * noise_variance);
+
+                channel(row:end, col:end) = ...
+                    channel(row:end, col:end) + abs(ifft2(Tz + Az.*(T0 - Tz)));
+                overlap_count(row:end, col:end) = ...
+                    overlap_count(row:end, col:end) + ones(size(overlap_count(row:end, col:end)));
             end
-            result(cr:2:end, cc:2:end) = channel/length(raw_frame);
+            result(cr:2:end, cc:2:end) = channel./overlap_count;
         end
     end
-    result(:,1:tile/2*2) = raw_frame{1}(:,1:tile/2*2);
-    result(:, floor((width/2 - tile) / stride) * stride * 2:end) = ...
-        raw_frame{1}(:, floor((width/2 - tile) / stride) * stride * 2:end);
-    result(1:tile/2*2,:) = raw_frame{1}(1:tile/2*2, :);
-    result(floor((height/2 - tile) / stride) * stride * 2:end,:) = ...
-        raw_frame{1}(floor((height/2 - tile) / stride) * stride * 2:end,:);
     
     result = min(result,1);
 end
