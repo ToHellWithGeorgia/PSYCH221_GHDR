@@ -1,7 +1,7 @@
 % Load three Taxi images
 addpath('../scenes');
-load('../scenes/taxi_burst_raw.mat');
-load('../scenes/taxi_merged_raw.mat');
+load('scenes/taxi_burst_raw.mat');
+load('scenes/taxi_merged_raw.mat');
 
 align_depth = 5;
 tile = 16;
@@ -23,9 +23,9 @@ for i = 1:length(taxi_raw)
 end
 %%
 % Averaging is not good.
-result1 = avg_merge(taxi_raw, align_offsets, tile, stride);
-figure; subplot 121; imshow(demosaic(uint8(taxi_merged_raw.^0.44*255),'grbg'));
-subplot 122; imshow(demosaic(uint8(result1.^0.44*255),'grbg'));
+% result1 = avg_merge(taxi_raw, align_offsets, tile, stride);
+% figure; subplot 121; imshow(demosaic(uint8(taxi_merged_raw.^0.44*255),'grbg'));
+% subplot 122; imshow(demosaic(uint8(result1.^0.44*255),'grbg'));
 
 %%
 result3 = robust_merge(taxi_raw, align_offsets, tile, stride);

@@ -50,5 +50,5 @@ function result = robust_merge(raw_frame, align_offsets, tile, stride)
     result(floor((height/2 - tile) / stride) * stride * 2:end,:) = ...
         raw_frame{1}(floor((height/2 - tile) / stride) * stride * 2:end,:);
     
-    result = result/max(max(result));
+    result = min(result,1);
 end
