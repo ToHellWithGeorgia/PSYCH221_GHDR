@@ -29,7 +29,7 @@ end
 
 %%
 result3 = robust_merge(taxi_raw, align_offsets, tile, stride);
-figure; subplot 121; imshow(demosaic(uint8(taxi_merged_raw.^0.44*255),'grbg'));
-subplot 122; imshow(demosaic(uint8(result3.^0.44*255),'grbg')); 
+% figure; subplot 121; imshow(demosaic(uint8(taxi_merged_raw.^0.44*255),'grbg'));
+% subplot 122; imshow(demosaic(uint8(result3.^0.44*255),'grbg')); 
 
 
