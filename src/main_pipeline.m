@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Load the burst images
 %
-burst_filename = "scenes/taxi_merged_raw.mat";
+burst_filename = "scenes/iset_burst_raw.mat";
 addpath('../scenes');
 load(burst_filename);
 % load('scenes/taxi_merged_raw.mat');
@@ -48,7 +48,8 @@ tic;
 M1 = 0.4;
 M2 = 6.0;
 gamma = 0.44;
-rgb_align = 'grbg';
+% rgb_align = 'grbg';
+rgb_align = 'rggb';
 
 % Detect and correct sensing defect
 correct_out = correctDefect(merge_out, M1, M2);
